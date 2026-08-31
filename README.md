@@ -36,8 +36,8 @@ A production-grade, privacy-first AI journaling web application built with Googl
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Yugp12/personal-gemini-journal.git
-   cd personal-gemini-journal
+   git clone https://github.com/Yugp12/personal-gemini-journal-2.git
+   cd personal-gemini-journal-2
    ```
 
 2. Install dependencies:
@@ -84,7 +84,7 @@ The repository includes a production-ready, multi-stage `Dockerfile` located at 
 ### Deploy Command
 
 ```bash
-gcloud run deploy personal-gemini-journal \
+gcloud run deploy personal-gemini-journal-2 \
   --source . \
   --region asia-southeast1 \
   --allow-unauthenticated \
