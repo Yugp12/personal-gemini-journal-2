@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Per-user configuration, timestamps, and privacy preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "User identifier matching auth.uid" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "photoURL": { "type": "string", "description": "Profile picture URL" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account initialization timestamp" },
+        "lastLoginAt": { "type": "string", "format": "date-time", "description": "Last authenticated access" }
+      }
+    },
+    "JournalEntry": {
+      "title": "JournalEntry",
+      "description": "User journal entries partitioned under user UID",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique journal document ID" },
+        "title": { "type": "string", "description": "Journal title or subject", "maxLength": 250 },
+        "content": { "type": "string", "description": "Full journal entry content", "maxLength": 50000 },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last modification timestamp" }
+      },
+      "required": ["title", "content"]
+    },
+    "AIPrivacyPolicy": {
+      "title": "AIPrivacyPolicy",
+      "description": "User-defined AI context firewall rules and privacy modes",
+      "type": "object",
+      "properties": {
+        "privacyMode": { "type": "string", "enum": ["STANDARD", "MAXIMUM_PRIVACY", "PRIVATE_MODE"] },
+        "alwaysBlock": { "type": "object" },
+        "allow": { "type": "object" },
+        "askOrRedact": { "type": "object" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "ContextReceipt": {
+      "title": "ContextReceipt",
+      "description": "Cryptographic context minimization receipt generated on Gemini reflection",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "originalCharCount": { "type": "number" },
+        "geminiCharCount": { "type": "number" },
+        "reductionPercentage": { "type": "number" },
+        "decision": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile records"
+    },
+    "/users/{userId}/journalEntries/{entryId}": {
+      "schema": "JournalEntry",
+      "description": "User journal entries partitioned under user UID"
+    },
+    "/users/{userId}/journals/{journalId}": {
+      "schema": "JournalEntry",
+      "description": "Legacy journal entries collection"
+    },
+    "/users/{userId}/privacySettings/{docId}": {
+      "schema": "AIPrivacyPolicy",
+      "description": "User-configured AI context firewall policies"
+    },
+    "/users/{userId}/contextReceipts/{receiptId}": {
+      "schema": "ContextReceipt",
+      "description": "Verifiable context receipts"
+    }
+  }
+}
