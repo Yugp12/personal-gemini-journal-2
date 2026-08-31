@@ -12,17 +12,40 @@ app.use(express.json({ limit: '1mb' }));
 
 // CORS & APP_URL Security Headers Middleware
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const appUrl = process.env.APP_URL;
-  if (appUrl && origin && (origin === appUrl || appUrl === '*')) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (!appUrl) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  } else {
-    res.setHeader('Access-Control-Allow-Origin', appUrl);
+  try {
+    const rawOrigin = req.headers.origin;
+    const origin = typeof rawOrigin === 'string' ? rawOrigin.trim().replace(/[\r\n"']/g, '') : '';
+    const rawAppUrl = process.env.APP_URL;
+    const appUrl = typeof rawAppUrl === 'string' ? rawAppUrl.trim().replace(/[\r\n"']/g, '') : '';
+
+    let allowOrigin = '*';
+    if (appUrl && appUrl !== '*') {
+      const allowedList = appUrl.split(',').map(s => s.trim()).filter(Boolean);
+      if (origin && (allowedList.includes(origin) || origin === appUrl)) {
+        allowOrigin = origin;
+      } else {
+        allowOrigin = allowedList[0] || appUrl;
+      }
+    } else if (origin) {
+      allowOrigin = origin;
+    }
+
+    // Sanitize to ensure strictly valid header characters (ASCII 0x20-0x7E, no CRLF)
+    const safeAllowOrigin = allowOrigin.replace(/[^\x20-\x7E]/g, '') || '*';
+    res.setHeader('Access-Control-Allow-Origin', safeAllowOrigin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  } catch (err) {
+    console.warn('[CORS] Failed to set CORS headers:', err);
+    try {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    } catch {
+      // Ignore fallback header failure
+    }
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
   }
