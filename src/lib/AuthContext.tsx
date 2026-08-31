@@ -89,6 +89,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      if (err?.code === 'auth/unauthorized-domain') {
+        setError('Unauthorized Domain: Please add your deployment URL (e.g. personal-gemini-journal-2-1mts.vercel.app) to Firebase Console > Authentication > Settings > Authorized Domains.');
+        return;
+      }
+
       console.error('Google Sign-In failed:', err);
       const message = err instanceof Error ? err.message : 'Failed to sign in with Google';
       setError(message);
@@ -110,6 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       if (err?.code === 'auth/popup-blocked') {
         throw new Error('The verification popup was blocked by your browser. Please allow popups to continue.');
+      }
+      if (err?.code === 'auth/unauthorized-domain') {
+        throw new Error('Unauthorized Domain: Please add your deployment URL to Firebase Console > Authentication > Settings > Authorized Domains.');
       }
       console.error('Google Reauthentication failed:', err);
       const message = err instanceof Error ? err.message : 'Reauthentication failed';
