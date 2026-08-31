@@ -202,10 +202,15 @@ personal-gemini-journal-2/
    Fill in your API credentials:
    ```env
    # Server Configuration
-   PORT=3000
-   NODE_ENV=development
+   PORT=8080
+   APP_URL=https://personal-gemini-journal-2.vercel.app
+   NODE_ENV=production
 
-   # Google Gemini API Key
+   # Gemini Model & Secret Manager (Server-Side)
+   GEMINI_MODEL=gemini-3.7-flash
+   GEMINI_SECRET_NAME=GEMINI_API_KEY
+   GEMINI_SECRET_VERSION=latest
+   GOOGLE_CLOUD_PROJECT=your-gcp-project-id
    GEMINI_API_KEY=your_gemini_api_key_here
 
    # Client Firebase Credentials (Vite)

@@ -10,6 +10,25 @@ const PORT = Number(process.env.PORT) || 8080;
 
 app.use(express.json({ limit: '1mb' }));
 
+// CORS & APP_URL Security Headers Middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const appUrl = process.env.APP_URL;
+  if (appUrl && origin && (origin === appUrl || appUrl === '*')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!appUrl) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', appUrl);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 // Health check endpoints for Cloud Run, container probes, and platform monitoring
 app.get(['/health', '/api/health'], (req, res) => {
   res.status(200).json({
